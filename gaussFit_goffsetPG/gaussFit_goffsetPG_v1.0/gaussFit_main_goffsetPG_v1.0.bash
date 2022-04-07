@@ -1,24 +1,53 @@
 #!/bin/bash -f
 
 # 2022.03.29
+# 2022.04.07
+
+# yuma a
 
 
+# args
+if [ $# != 2 ] ; then
+    echo "[specType] [phType]"
+    echo "specType : org / cor"
+    echo "phType : PHA / PHAS_SUM"
+    exit
+fi
 
 # ref
 noise_ref=( 5.8 6.0 )
 PHA0_ref=( 958 )
 grade_ref=( 0 2 3 4 6 )
 
+# args
+specType=$1
+phType=$2
+
 # dir
 d_dat='dat'
-d_output='fittingResult'
-fileType='orgSpec'
-#fileType='corSpec_sum'
 
 # file
 b_fit1='gaussFit_sub_goffsetPG_v1.0.bash'
 b_fit2='qdpFit_v1.0.bash'
 f_fitData='fitData.dat'
+
+# set fileType and dir
+if [ "${specType}" = "org" ] && [ "${phType}" = "PHA" ] ; then
+    fileType="orgSpec"
+    d_output="fittingResult_org"
+elif [ "${specType}" = "org" ] && [ "${phType}" = "PHAS_SUM" ] ; then
+    fileType="orgSpec_sum"
+    d_output="fittingResult_org_sum"
+elif [ "${specType}" = "cor" ] && [ "${phType}" = "PHA" ] ; then
+    fileType="corSpec"
+    d_output="fittingResult_cor"
+elif [ "${specType}" = "cor" ] && [ "${phType}" = "PHAS_SUM" ] ; then
+    fileType="corSpec_sum"
+    d_output="fittingResult_cor_sum"
+else
+    echo "incollect args"
+    exit
+fi
 
 # check file and dir
 if [ ! -e $b_fit1 ] ; then
@@ -47,6 +76,7 @@ for PHA0 in ${PHA0_ref[@]} ; do
         
         for grade in ${grade_ref[@]} ; do
             
+            # fit
             bash $b_fit1 ${d_dat}/${fileType}_PHA${PHA0}_noise${noise}_G${grade}.dat
             
             # rename

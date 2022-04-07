@@ -15,8 +15,8 @@ if [ $# != 2 ] ; then
 fi
 
 # ref
-noise_ref=( 5.8 6.0 )
-PHA0_ref=( 958 )
+noise_ref=( 5 6 )
+PHA0_ref=( 100 200 500 1000 )
 grade_ref=( 0 2 3 4 6 )
 
 # spec dir
@@ -38,14 +38,14 @@ if [ "${specType}" = "org" ] && [ "${phType}" = "PHA" ] ; then
 elif [ "${specType}" = "org" ] && [ "${phType}" = "PHAS_SUM" ] ; then
     fileType="orgSpec_sum"
     d_output="fittingResult_org_sum"
-    grade_ref+=8; grade_ref+=9
+    grade_ref+=( 8 9 )
 elif [ "${specType}" = "cor" ] && [ "${phType}" = "PHA" ] ; then
     fileType="corSpec"
     d_output="fittingResult_cor"
 elif [ "${specType}" = "cor" ] && [ "${phType}" = "PHAS_SUM" ] ; then
     fileType="corSpec_sum"
     d_output="fittingResult_cor_sum"
-    grade_ref+=8; grade_ref+=9
+    grade_ref+=( 8 9 )
 else
     echo "incollect args"
     exit

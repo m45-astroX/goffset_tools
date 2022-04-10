@@ -87,7 +87,7 @@ for noise in ${noise_ref[@]} ; do
             PHA=$(awk '{printf "%5.6f", $1}' $f_fit)
             
             # calc goffset
-            goffset=$(echo "scale=5; ${PHAS_SUM} - ${PHA}" | bc | xargs -n1 printf "%.5f")
+            goffset=$(echo "scale=20; ${PHAS_SUM} - ${PHA}" | bc | xargs -n1 printf "%.10f")
             
             # output File
             outputFile="goffset_noise${noise}_G${grade}.dat"

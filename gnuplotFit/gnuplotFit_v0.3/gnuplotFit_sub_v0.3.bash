@@ -29,15 +29,15 @@ f_fitData='FIT_Result.dat'
 
 # plot
 if [ "$grade" -eq "0" ] ; then
-    c_plot="plot \"${inputFile}\" title \"data\" with points ps 0.8 pt 7 lc 'blue', s(x) title \"fit\" lw 2 lc 'gray-100'"
+    c_plot="plot \"${inputFile}\" title \"data\" with points ps 0.8 pt 7 lc 'blue', s(x) title \"fit\" lw 2 lc 'black'"
 elif [ "$grade" -eq "2" ] ; then
-    c_plot="plot \"${inputFile}\" title \"data\" with points ps 0.8 pt 7 lc 'orange', s(x) title \"fit\" lw 2 lc 'gray-100'"
+    c_plot="plot \"${inputFile}\" title \"data\" with points ps 0.8 pt 7 lc 'orange', s(x) title \"fit\" lw 2 lc 'black'"
 elif [ "$grade" -eq "3" ] ; then
-    c_plot="plot \"${inputFile}\" title \"data\" with points ps 0.8 pt 7 lc 'forest-green', s(x) title \"fit\" lw 2 lc 'gray-100'"
+    c_plot="plot \"${inputFile}\" title \"data\" with points ps 0.8 pt 7 lc 'forest-green', s(x) title \"fit\" lw 2 lc 'black'"
 elif [ "$grade" -eq "4" ] ; then
-    c_plot="plot \"${inputFile}\" title \"data\" with points ps 0.8 pt 7 lc 'gray', s(x) title \"fit\" lw 2 lc 'gray-100'"
+    c_plot="plot \"${inputFile}\" title \"data\" with points ps 0.8 pt 7 lc 'gray', s(x) title \"fit\" lw 2 lc 'black'"
 elif [ "$grade" -eq "6" ] ; then
-    c_plot="plot \"${inputFile}\" title \"data\" with points ps 0.8 pt 7 lc 'red', s(x) title \"fit\" lw 2 lc 'gray-100'"
+    c_plot="plot \"${inputFile}\" title \"data\" with points ps 0.8 pt 7 lc 'red', s(x) title \"fit\" lw 2 lc 'black'"
 else
     echo "grade ${grade} is out of scope"
     exit

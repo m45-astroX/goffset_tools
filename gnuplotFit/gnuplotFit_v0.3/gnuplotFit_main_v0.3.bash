@@ -45,9 +45,9 @@ function set_y_min_1 () {
     y_min=$(awk 'NR==1 {min=$2} NR>=2 && min>$2 {min=$2} END {print min}' $f_file)
     
     if [ "$(echo "${y_min} >= 0" | bc)" -eq "1" ] ; then
-        y_min=$(echo "scale=4; ${y_min} - 0.5" | bc | xargs printf "%.0f")
+        y_min=$(echo "scale=10; ${y_min} - 0.5" | bc | xargs printf "%.0f")
     else
-        y_min=$(echo "scale=4; ${y_min} - 0.5" | bc | xargs printf "%.0f")
+        y_min=$(echo "scale=10; ${y_min} - 0.5" | bc | xargs printf "%.0f")
     fi
     
 }
@@ -58,9 +58,9 @@ function set_y_max_1 () {
     y_max=$(awk 'NR==1 {max=$2} NR>=2 && max<$2 {max=$2} END {print max}' $f_file)
     
     if [ "$(echo "${y_max} >= 0" | bc)" -eq "1" ] ; then
-        y_max=$(echo "scale=4; ${y_max} + (${y_max} - ${y_min}) / 8 + 0.5" | bc | xargs printf "%.0f")
+        y_max=$(echo "scale=10; ${y_max} + (${y_max} - ${y_min}) / 8 + 0.5" | bc | xargs printf "%.0f")
     else
-        y_max=$(echo "scale=4; ${y_max} + (${y_max} - ${y_min}) / 8 + 0.5" | bc | xargs printf "%.0f")
+        y_max=$(echo "scale=10; ${y_max} + (${y_max} - ${y_min}) / 8 + 0.5" | bc | xargs printf "%.0f")
     fi
         
 }

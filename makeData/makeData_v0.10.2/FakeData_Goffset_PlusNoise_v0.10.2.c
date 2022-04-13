@@ -62,9 +62,9 @@ int main( int argc, char *argv[] ){   //1個目:コマンドライン引数の�
     int j = 0;        // loop用
     int a = 0;        // loop用
     
-    FILE *fp1_org = NULL;       // ファイル
-    FILE *fp1_cor = NULL;       // ファイル
-
+    FILE *fp1_org = NULL;       // イベントファイル
+    FILE *fp1_cor = NULL;       // イベントファイル
+    
     // 2022.03.29 追加 Gradeごとにスペクトルを出力
     // org
     FILE *fp_spec_org_g0 = NULL;
@@ -257,8 +257,8 @@ int main( int argc, char *argv[] ){   //1個目:コマンドライン引数の�
         sp_cnt_phassum_cor[9][phas_sum_int] = sp_cnt_phassum_cor[9][phas_sum_int] + 1;
         
     }
-    fclose(fp1_org);  // ファイル閉じる。
-    fclose(fp1_cor);  // ファイル閉じる。
+    fclose(fp1_org);  // ファイル閉じる
+    fclose(fp1_cor);  // ファイル閉じる
     
     /* PHA スペクトル */
     
@@ -412,7 +412,6 @@ int main( int argc, char *argv[] ){   //1個目:コマンドライン引数の�
     fclose(fp_spec_cor_sum_g7);
     fclose(fp_spec_cor_sum_g8);
     fclose(fp_spec_cor_sum_g9);
-    
     
     /* メモリ解放 */
     // ポインタ

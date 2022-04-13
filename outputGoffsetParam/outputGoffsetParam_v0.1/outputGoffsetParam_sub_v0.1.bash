@@ -6,14 +6,13 @@
 
 
 # args
-if [ $# != 2 ] ; then
-    echo "[inputFile] [outputFile(.csv)]"
+if [ $# != 1 ] ; then
+    echo "[inputFile]"
     exit
 fi
 
 # input args
 inputFile=$1
-outputFile=$2
 
 # var
 EBL=306.5
@@ -58,7 +57,7 @@ AM3=0
 AH0=$(echo "scale=20; ${b} * (${EBH} - ${EBL}) + ${c}" | bc | xargs printf "%.15f")
 
 # output
-echo "${AL0}, ${AL2}, ${AL3}, ${AM1}, ${AM2}, ${AM3}, ${AL1}, ${AM0}, ${AH0}" >> $outputFile
+echo "${AL0}, ${AL2}, ${AL3}, ${AM1}, ${AM2}, ${AM3}, ${AL1}, ${AM0}, ${AH0}"
 
 
 exit

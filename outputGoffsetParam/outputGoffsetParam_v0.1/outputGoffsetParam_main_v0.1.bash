@@ -1,22 +1,43 @@
 #!/bin/bash -f
 
-# 2022.04.10
+# 2022.04.13
 
 # yuma a
 
 
+# args
+if [ $# != 0 ] ; then
+    echo "[]"
+    exit
+fi
+
 # ref
-noise_ref=( 5.0 5.5 6.0 6.5 )
+noise_ref=( 3.0 3.5 4.0 4.5 )
 grade_ref=( 0 2 3 6 )
 
-# file
-b_param_out='outputGoffsetParam_sub_v0.1.bash'
+# coefficient dir
+d_coe='coefficient'
 
+# files
+b_outputParam='outputGoffsetParam_sub_v0.1.bash'
+
+# output
 for noise in ${noise_ref[@]} ; do
     
     for grade in ${grade_ref[@]} ; do
         
-        bash $b_param_out 
+        # file
+        inputFile="./${d_coe}/FIT_Result_noise${noise}_G${grade}.csv"
+        outputFile="./${d_coe}/coefficient_noise${noise}.csv"
+        
+        # check file
+        if [ ! -e $inputFile ] ; then
+            echo "${inputFile} does not exist"
+            continue
+        fi
+        
+        # output
+        bash $b_outputParam $inputFile >> $outputFile
         
     done
     

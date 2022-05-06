@@ -1,0 +1,68 @@
+
+$ D_SCRIPT="/Users/aoki/git/goffset_tools/"
+
+$ cp ${D_SCRIPT}/makeData/makeData_v0.10.2/auto_makeData_v0.10.2.bash .
+$ cp ${D_SCRIPT}/makeData/makeData_v0.10.2/FakeData_Goffset_PlusNoise_v0.10.2.c .
+
+$ bash auto_makeData_v0.10.2.bash 
+
+$ cd analysis
+
+$ cd cor
+
+$ cp ${D_SCRIPT}/gaussFit_goffsetPG/gaussFit_goffsetPG_v1.0/gaussFit_main_goffsetPG_v1.0.bash .
+
+$ cp ${D_SCRIPT}/gaussFit_goffsetPG/gaussFit_goffsetPG_v1.0/gaussFit_sub_goffsetPG_v1.0.bash . 
+
+$ cp ${D_SCRIPT}/gaussFit_goffsetPG/gaussFit_goffsetPG_v1.0/qdpFit_v1.0.bash .
+
+## CHANGE PHA0_ref and noise_ref ##
+
+$ bash gaussFit_main_goffsetPG_v1.0.bash cor PHA
+
+$ cd ../
+
+$ cd cor_sum
+
+$ cp ${D_SCRIPT}/gaussFit_goffsetPG/gaussFit_goffsetPG_v1.0/gaussFit_main_goffsetPG_v1.0.bash .
+
+$ cp ${D_SCRIPT}/gaussFit_goffsetPG/gaussFit_goffsetPG_v1.0/gaussFit_sub_goffsetPG_v1.0.bash . 
+
+$ cp ${D_SCRIPT}/gaussFit_goffsetPG/gaussFit_goffsetPG_v1.0/qdpFit_v1.0.bash .
+
+
+## CHANGE PHA0_ref and noise_ref ##
+
+$ bash gaussFit_main_goffsetPG_v1.0.bash cor PHAS_SUM
+
+$ cd ../
+
+$ mkdir goffset
+
+$ cd goffset
+
+$ cp -r ../cor/fittingResult_cor .
+
+$ cp -r ../cor_sum/fittingResult_cor_sum . 
+
+$ cp ${D_SCRIPT}/calcGoffset/calcGoffset_v0.3/calcGoffset_PHASSUM-PHA_v0.3.bash .
+
+
+## CHANGE PHA0_ref and noise_ref ##
+
+$ bash calcGoffset_PHASSUM-PHA_v0.3.bash cor
+
+$ cp ~/git/goffset_tools/gnuplotFit/gnuplotFit_v0.3/gnuplotFit_main_v0.3.bash .
+
+$ cp ~/git/goffset_tools/gnuplotFit/gnuplotFit_v0.3/gnuplotFit_sub_v0.3.bash .
+
+
+## CHANGE noise_ref ##
+
+$ bash gnuplotFit_main_v0.3.bash
+
+
+
+
+
+

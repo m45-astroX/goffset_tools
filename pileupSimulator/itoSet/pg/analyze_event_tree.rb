@@ -28,6 +28,7 @@ class AssignEventTime < ANL::ANLApp
   end
 end
 
+
 class DefineFrames < ANL::ANLApp
   attr_accessor :inputs, :output
   attr_accessor :time_start, :frame_exposure

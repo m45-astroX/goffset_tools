@@ -4,16 +4,17 @@
 
 # yuma a
 
+
 # ref
-noise_ref=( 6.2 )
-PHA0_ref=( 100 200 500 1000 2000 3000 )
+noise_ref=( 6.4 6.8 7.2 7.6 8.0 8.4 )
+PHA0_ref=( 80 100 120 150 200 300 400 500 600 800 1000 1200 1600 2000 )
 
 # var
-sigma=0.12
-trial=10000
+sigma=0.13
+trial=100000
 
 # dir
-d_master='analysis'
+d_master='step2_sigma0.13_2'
 d_org="${d_master}/org/dat"
 d_cor="${d_master}/cor/dat"
 d_org_sum="${d_master}/org_sum/dat"

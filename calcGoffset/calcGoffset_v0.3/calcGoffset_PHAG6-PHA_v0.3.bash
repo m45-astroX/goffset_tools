@@ -1,10 +1,11 @@
 #!/bin/bash -f
 
 # 2022.03.29
+# 2022.05.12
 
 # yuma a
 
-# Goffset = PHAS_SUM[GoodGrade] - PHA
+# Goffset = PHA[G6] - PHA
 
 
 # args
@@ -70,11 +71,16 @@ for noise in ${noise_ref[@]} ; do
             
             # file
             f_fit="${d_fit}/fitData_${fit_fileType}_PHA${PHA0}_noise${noise}_G${grade}.dat"
+            f_fit_G6="${d_fit}/fitData_${fit_fileType}_PHA${PHA0}_noise${noise}_G6.dat"
             f_sum_fit="${d_sum_fit}/fitData_${sum_fit_fileType}_PHA${PHA0}_noise${noise}_G8.dat"
             
             # check file
             if [ ! -e $f_fit ] ; then
                 echo "${f_fit} does not exist"
+                continue
+            fi
+            if [ ! -e $f_fit_G6 ] ; then
+                echo "${f_fit_G6} does not exist"
                 continue
             fi
             if [ ! -e $f_sum_fit ] ; then
@@ -85,9 +91,10 @@ for noise in ${noise_ref[@]} ; do
             # input val
             PHAS_SUM=$(awk '{printf "%5.6f", $1}' $f_sum_fit)
             PHA=$(awk '{printf "%5.6f", $1}' $f_fit)
+            PHAG6=$(awk '{printf "%5.6f", $1}' $f_fit_G6)
             
             # calc goffset
-            goffset=$(echo "scale=20; ${PHAS_SUM} - ${PHA}" | bc | xargs -n1 printf "%.10f")
+            goffset=$(echo "scale=20; ${PHAG6} - ${PHA}" | bc | xargs -n1 printf "%.10f")
             
             # output File
             outputFile="goffset_noise${noise}_G${grade}.dat"

@@ -1,7 +1,5 @@
 /*
- Program修正版
- 2021-05-29
-  一つのX線イベントに対して、波高値の計算とノイズ加算を行うプログラム。
+ 2021-05-29, 一つのX線イベントに対して、波高値の計算とノイズ加算を行うプログラム。
  2021-06-29, v3: 入射位置をランダムにする
  2021-07-08, v4: Fano factor を入れる
  2021-07-15, v0.5: bug fix
@@ -10,49 +8,48 @@
  2021-08-27, v0.8: bug fix (pha_int, phas_sum_int)
  2021-08-28, v0.9: pha_int, phas_sum_intの仕様変更
  2021-09-16, v0.10: 負のPHA,PHAS_SUMに対応
- 2022-03-29, v0.10.1: スペクトルをGradeごとに別ファイルに保存
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
  
-/* 関数の定義 */
 double nrand();
-    //正規分布に従うデータを出力する関数
+    // 正規分布に従うデータを出力する関数
 double calc_ph( double x, double y, double pha, double sigma_charge );
-    //ピクセルをN=100マス(変更可)に区切って、電荷量を計算する関数
+    // ピクセルをN=100マス(変更可)に区切って、電荷量を計算する関数
 void func ( char list );
-    //listを表示する関数
+    // listを表示する関数
 int det_grade( double phas_input[9], int spth );
-    //グレード判定関数
+    // グレード判定関数
 double calc_phas( double pha, int px_no, double sigma_charge, double x0, double y0 );
-    //各ピクセルの波高値を計算する
+    // 各ピクセルの波高値を計算する
 double calc_pha( double phas_input[9], int grade );
-    //Gradeごとの演算
+    // Gradeごとの演算
 double phas_sum( double phas_input[9] );    // PHA_SUM (3x3の合計)
 
-/* Main関数 */
-int main( int argc, char *argv[] ){   //1個目:コマンドライン引数の数,2個目:コマンドライン引数
+
+
+int main( int argc, char *argv[] ){
     
-    double noise = 5.0;               //ノイズ
-    double sigma_charge = 0.1;        //sigma
+    double noise = 5.0;
+    double sigma_charge = 0.1;
     double phas[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-        //9個の小数からなる配列。各ピクセルの波高値を格納
+        // 各ピクセルの波高値を格納
     double phas_cor[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-        //9個の小数からなる配列。ノイズを加えた後の、各ピクセルの波高値を格納
+        // ノイズを加えた後の各ピクセルの波高値を格納
     
-    int grade = -1;     //Gradeを定義、初期値-1
-    int spth = 15;      //イベント中心の周りに電荷が漏れているかを判定する閾値
-    int num_trial = 0;  //試行回数
+    int grade = -1;
+    int spth = 15;          // split threshold
+    int num_trial = 0;      // 試行回数
     
-    double x0 = 0.0;        //X線が入射した点のx座標
-    double y0 = 0.0;        //X線が入射した点のy座標
-    double pha0 = 100.0;    //波高値の初期値
-    double pha = 100.0;     //波高値
+    double x0 = 0.0;        // X線が入射した点のx座標
+    double y0 = 0.0;        // X線が入射した点のy座標
+    double pha0 = 100.0;    // 波高値の初期値
+    double pha = 100.0;     // 波高値
     
     double pha_fano = 100.0;
-        // PHA にfano揺らぎを加算したもの。 1 ch/eV、 1 electron = 3.65 eV を仮定
+        // PHA にfano揺らぎを加算したもの。 1ch/eV、 1electron = 3.65eV を仮定
     double fano_factor = 0.115; // fano factor
     
     int pha_int = 0;        // PHA 計算値の四捨五入値
@@ -62,55 +59,17 @@ int main( int argc, char *argv[] ){   //1個目:コマンドライン引数の�
     int j = 0;        // loop用
     int a = 0;        // loop用
     
-    FILE *fp1_org = NULL;       // イベントファイル
-    FILE *fp1_cor = NULL;       // イベントファイル
-    
-    // 2022.03.29 追加 Gradeごとにスペクトルを出力
-    // org
-    FILE *fp_spec_org_g0 = NULL;
-    FILE *fp_spec_org_g1 = NULL;
-    FILE *fp_spec_org_g2 = NULL;
-    FILE *fp_spec_org_g3 = NULL;
-    FILE *fp_spec_org_g4 = NULL;
-    FILE *fp_spec_org_g5 = NULL;
-    FILE *fp_spec_org_g6 = NULL;
-    FILE *fp_spec_org_g7 = NULL;
-    // cor
-    FILE *fp_spec_cor_g0 = NULL;
-    FILE *fp_spec_cor_g1 = NULL;
-    FILE *fp_spec_cor_g2 = NULL;
-    FILE *fp_spec_cor_g3 = NULL;
-    FILE *fp_spec_cor_g4 = NULL;
-    FILE *fp_spec_cor_g5 = NULL;
-    FILE *fp_spec_cor_g6 = NULL;
-    FILE *fp_spec_cor_g7 = NULL;
-    // org_sum
-    FILE *fp_spec_org_sum_g0 = NULL;
-    FILE *fp_spec_org_sum_g1 = NULL;
-    FILE *fp_spec_org_sum_g2 = NULL;
-    FILE *fp_spec_org_sum_g3 = NULL;
-    FILE *fp_spec_org_sum_g4 = NULL;
-    FILE *fp_spec_org_sum_g5 = NULL;
-    FILE *fp_spec_org_sum_g6 = NULL;
-    FILE *fp_spec_org_sum_g7 = NULL;
-    FILE *fp_spec_org_sum_g8 = NULL;
-    FILE *fp_spec_org_sum_g9 = NULL;
-    // cor_sum
-    FILE *fp_spec_cor_sum_g0 = NULL;
-    FILE *fp_spec_cor_sum_g1 = NULL;
-    FILE *fp_spec_cor_sum_g2 = NULL;
-    FILE *fp_spec_cor_sum_g3 = NULL;
-    FILE *fp_spec_cor_sum_g4 = NULL;
-    FILE *fp_spec_cor_sum_g5 = NULL;
-    FILE *fp_spec_cor_sum_g6 = NULL;
-    FILE *fp_spec_cor_sum_g7 = NULL;
-    FILE *fp_spec_cor_sum_g8 = NULL;    // good Grade
-    FILE *fp_spec_cor_sum_g9 = NULL;    // all Grade
+    FILE *fp1_org = NULL;       // ファイル
+    FILE *fp2_org = NULL;       // ファイル
+    FILE *fp3_org = NULL;       // ファイル
+    FILE *fp1_cor = NULL;       // ファイル
+    FILE *fp2_cor = NULL;       // ファイル
+    FILE *fp3_cor = NULL;       // ファイル
     
     int **sp_cnt_org = NULL;               // スペクトル用
-    int **sp_cnt_phassum_org = NULL;       // スペクトル用, [8]はGoodGrade, [9] は全Grade
+    int **sp_cnt_phassum_org = NULL;       // スペクトル用, [8]は PHAS_SUM用, [9] は全イベント
     int **sp_cnt_cor = NULL;               // スペクトル用
-    int **sp_cnt_phassum_cor = NULL;       // スペクトル用, [8]はGoodGrade, [9] は全Grade
+    int **sp_cnt_phassum_cor = NULL;       // スペクトル用, [8]は PHAS_SUM用, [9] は全イベント
     
     /* メモリ確保 */
     // 1.Grade数だけメモリを確保
@@ -118,25 +77,26 @@ int main( int argc, char *argv[] ){   //1個目:コマンドライン引数の�
     sp_cnt_org = (int**)malloc( sizeof(int*) * 8 );
     for ( i=0; i<8; i++ ) {
         sp_cnt_org[i] = (int*)malloc( sizeof(int) * 5096 );
-        sp_cnt_org[i] = sp_cnt_org[i] + 1000;
+        sp_cnt_org[i] = sp_cnt_org[i] + 1000;       //ポインタ値の変更
     }
     sp_cnt_phassum_org = (int**)malloc( sizeof(int*) * 10 );
     for ( i=0; i<10; i++ ) {
         sp_cnt_phassum_org[i] = (int*)malloc( sizeof(int) * 5096 );
-        sp_cnt_phassum_org[i] = sp_cnt_phassum_org[i] + 1000;
+        sp_cnt_phassum_org[i] = sp_cnt_phassum_org[i] + 1000;       //ポインタ値の変更
     }
     sp_cnt_cor = (int**)malloc( sizeof(int*) * 8 );
     for ( i=0; i<8; i++ ) {
         sp_cnt_cor[i] = (int*)malloc( sizeof(int) * 5096 );
-        sp_cnt_cor[i] = sp_cnt_cor[i] + 1000;
+        sp_cnt_cor[i] = sp_cnt_cor[i] + 1000;       //ポインタ値の変更
     }
     sp_cnt_phassum_cor = (int**)malloc( sizeof(int*) * 10 );
     for ( i=0; i<10; i++ ) {
         sp_cnt_phassum_cor[i] = (int*)malloc( sizeof(int) * 5096 );
-        sp_cnt_phassum_cor[i] = sp_cnt_phassum_cor[i] + 1000;
+        sp_cnt_phassum_cor[i] = sp_cnt_phassum_cor[i] + 1000;       //ポインタ値の変更
     }
+    // メモリが確保できているか確認
     if ( sp_cnt_org == NULL || sp_cnt_phassum_org == NULL || sp_cnt_cor == NULL || sp_cnt_phassum_cor == NULL ) {
-        printf("memory error\n");
+        printf("メモリ確保失敗\n");
         return -1;
     }
     
@@ -164,7 +124,7 @@ int main( int argc, char *argv[] ){   //1個目:コマンドライン引数の�
     
     /* 入力パラメータの代入 */
     pha0 = atof(argv[1]);           //PHAの初期値(発生した全電荷による波高値)
-    sigma_charge = atof(argv[2]);   //電荷分布のsigma
+    sigma_charge = atof(argv[2]);   //電荷分布の標準偏差σ
     noise = atof(argv[3]);          //ノイズ
     num_trial = atof(argv[4]);      //ノイズ加算試行回数
     
@@ -227,6 +187,7 @@ int main( int argc, char *argv[] ){   //1個目:コマンドライン引数の�
         sp_cnt_phassum_org[9][phas_sum_int] = sp_cnt_phassum_org[9][phas_sum_int] + 1;
         
 
+        
         /* ノイズを加えた結果を出力 */
         for ( a=0 ; a<9 ; a++){     //9ピクセルに対しノイズを加算する
             phas_cor[a] = phas[a] + (double)nrand() * noise;         //各ピクセルに対してノイズを加算
@@ -257,161 +218,77 @@ int main( int argc, char *argv[] ){   //1個目:コマンドライン引数の�
         sp_cnt_phassum_cor[9][phas_sum_int] = sp_cnt_phassum_cor[9][phas_sum_int] + 1;
         
     }
-    fclose(fp1_org);  // ファイル閉じる
-    fclose(fp1_cor);  // ファイル閉じる
+    fclose(fp1_org);  // ファイル閉じる。
+    fclose(fp1_cor);  // ファイル閉じる。
     
     /* PHA スペクトル */
-    
-    fp_spec_org_g0 = fopen("Spectrum_org_G0.dat", "w");
-    fp_spec_org_g1 = fopen("Spectrum_org_G1.dat", "w");
-    fp_spec_org_g2 = fopen("Spectrum_org_G2.dat", "w");
-    fp_spec_org_g3 = fopen("Spectrum_org_G3.dat", "w");
-    fp_spec_org_g4 = fopen("Spectrum_org_G4.dat", "w");
-    fp_spec_org_g5 = fopen("Spectrum_org_G5.dat", "w");
-    fp_spec_org_g6 = fopen("Spectrum_org_G6.dat", "w");
-    fp_spec_org_g7 = fopen("Spectrum_org_G7.dat", "w");
-    
-    fp_spec_cor_g0 = fopen("Spectrum_cor_G0.dat", "w");
-    fp_spec_cor_g1 = fopen("Spectrum_cor_G1.dat", "w");
-    fp_spec_cor_g2 = fopen("Spectrum_cor_G2.dat", "w");
-    fp_spec_cor_g3 = fopen("Spectrum_cor_G3.dat", "w");
-    fp_spec_cor_g4 = fopen("Spectrum_cor_G4.dat", "w");
-    fp_spec_cor_g5 = fopen("Spectrum_cor_G5.dat", "w");
-    fp_spec_cor_g6 = fopen("Spectrum_cor_G6.dat", "w");
-    fp_spec_cor_g7 = fopen("Spectrum_cor_G7.dat", "w");
-    
-    if ( fp_spec_org_g0 == NULL || fp_spec_org_g1 == NULL || fp_spec_org_g2 == NULL || fp_spec_org_g3 == NULL || fp_spec_org_g4 == NULL || fp_spec_org_g5 == NULL || fp_spec_org_g6 == NULL || fp_spec_org_g7 == NULL ) {
-        printf("Error : fopen spec_org\n");
+    fp2_org = fopen("Spectrum_org.dat","w");
+    if( fp2_org == NULL ){
+        printf("ファイルオープンエラー\n");
         return -1;
     }
-    if ( fp_spec_cor_g0 == NULL || fp_spec_cor_g1 == NULL || fp_spec_cor_g2 == NULL || fp_spec_cor_g3 == NULL || fp_spec_cor_g4 == NULL || fp_spec_cor_g5 == NULL || fp_spec_cor_g6 == NULL || fp_spec_cor_g7 == NULL ) {
-        printf("Error : fopen spec_cor\n");
+    fp2_cor = fopen("Spectrum_cor.dat","w");
+    if( fp2_cor == NULL ){
+        printf("ファイルオープンエラー\n");
         return -1;
     }
-        
     // スペクトルを出力, ノイズ加算なし
-    for ( i=-1000 ; i<4096 ; i++ ){
-        fprintf(fp_spec_org_g0, "%5d %6d\n", i, sp_cnt_org[0][i]);
-        fprintf(fp_spec_org_g1, "%5d %6d\n", i, sp_cnt_org[1][i]);
-        fprintf(fp_spec_org_g2, "%5d %6d\n", i, sp_cnt_org[2][i]);
-        fprintf(fp_spec_org_g3, "%5d %6d\n", i, sp_cnt_org[3][i]);
-        fprintf(fp_spec_org_g4, "%5d %6d\n", i, sp_cnt_org[4][i]);
-        fprintf(fp_spec_org_g5, "%5d %6d\n", i, sp_cnt_org[5][i]);
-        fprintf(fp_spec_org_g6, "%5d %6d\n", i, sp_cnt_org[6][i]);
-        fprintf(fp_spec_org_g7, "%5d %6d\n", i, sp_cnt_org[7][i]);
+    fprintf(fp2_org, "! PHA, COUNTS\n");
+    fprintf(fp2_org, "SKIP SINGLE\n");
+
+    for (i=0 ; i<8 ; i++){
+        for ( j=-1000 ; j<4096 ; j++ ){
+            fprintf(fp2_org, "%5d %6d\n", j, sp_cnt_org[i][j]);
+        }
+        fprintf(fp2_org, "NO\n");
     }
-    
     // スペクトルを出力, ノイズ加算あり
-    for ( i=-1000 ; i<4096 ; i++ ){
-        fprintf(fp_spec_cor_g0, "%5d %6d\n", i, sp_cnt_cor[0][i]);
-        fprintf(fp_spec_cor_g1, "%5d %6d\n", i, sp_cnt_cor[1][i]);
-        fprintf(fp_spec_cor_g2, "%5d %6d\n", i, sp_cnt_cor[2][i]);
-        fprintf(fp_spec_cor_g3, "%5d %6d\n", i, sp_cnt_cor[3][i]);
-        fprintf(fp_spec_cor_g4, "%5d %6d\n", i, sp_cnt_cor[4][i]);
-        fprintf(fp_spec_cor_g5, "%5d %6d\n", i, sp_cnt_cor[5][i]);
-        fprintf(fp_spec_cor_g6, "%5d %6d\n", i, sp_cnt_cor[6][i]);
-        fprintf(fp_spec_cor_g7, "%5d %6d\n", i, sp_cnt_cor[7][i]);
-    }
+    fprintf(fp2_cor, "! PHA, COUNTS\n");
+    fprintf(fp2_cor, "SKIP SINGLE\n");
     
+    for (i=0 ; i<8 ; i++){
+        for ( j=-1000 ; j<4096 ; j++ ){
+            fprintf(fp2_cor, "%5d %6d\n", j, sp_cnt_cor[i][j]);
+        }
+        fprintf(fp2_cor, "NO\n");
+    }
+    fclose(fp2_org);  // ファイル閉じる。
+    fclose(fp2_cor);  // ファイル閉じる。
     
     /* PHAS_SUM スペクトル */
-    
-    fp_spec_org_sum_g0 = fopen("Spectrum_PhasSum_org_G0.dat", "w");
-    fp_spec_org_sum_g1 = fopen("Spectrum_PhasSum_org_G1.dat", "w");
-    fp_spec_org_sum_g2 = fopen("Spectrum_PhasSum_org_G2.dat", "w");
-    fp_spec_org_sum_g3 = fopen("Spectrum_PhasSum_org_G3.dat", "w");
-    fp_spec_org_sum_g4 = fopen("Spectrum_PhasSum_org_G4.dat", "w");
-    fp_spec_org_sum_g5 = fopen("Spectrum_PhasSum_org_G5.dat", "w");
-    fp_spec_org_sum_g6 = fopen("Spectrum_PhasSum_org_G6.dat", "w");
-    fp_spec_org_sum_g7 = fopen("Spectrum_PhasSum_org_G7.dat", "w");
-    fp_spec_org_sum_g8 = fopen("Spectrum_PhasSum_org_G8.dat", "w");
-    fp_spec_org_sum_g9 = fopen("Spectrum_PhasSum_org_G9.dat", "w");
-    
-    fp_spec_cor_sum_g0 = fopen("Spectrum_PhasSum_cor_G0.dat", "w");
-    fp_spec_cor_sum_g1 = fopen("Spectrum_PhasSum_cor_G1.dat", "w");
-    fp_spec_cor_sum_g2 = fopen("Spectrum_PhasSum_cor_G2.dat", "w");
-    fp_spec_cor_sum_g3 = fopen("Spectrum_PhasSum_cor_G3.dat", "w");
-    fp_spec_cor_sum_g4 = fopen("Spectrum_PhasSum_cor_G4.dat", "w");
-    fp_spec_cor_sum_g5 = fopen("Spectrum_PhasSum_cor_G5.dat", "w");
-    fp_spec_cor_sum_g6 = fopen("Spectrum_PhasSum_cor_G6.dat", "w");
-    fp_spec_cor_sum_g7 = fopen("Spectrum_PhasSum_cor_G7.dat", "w");
-    fp_spec_cor_sum_g8 = fopen("Spectrum_PhasSum_cor_G8.dat", "w");
-    fp_spec_cor_sum_g9 = fopen("Spectrum_PhasSum_cor_G9.dat", "w");
-    
-    if ( fp_spec_org_sum_g0 == NULL || fp_spec_org_sum_g1 == NULL || fp_spec_org_sum_g2 == NULL || fp_spec_org_sum_g3 == NULL || fp_spec_org_sum_g4 == NULL || fp_spec_org_sum_g5 == NULL || fp_spec_org_sum_g6 == NULL || fp_spec_org_sum_g7 == NULL || fp_spec_org_sum_g8 == NULL || fp_spec_org_sum_g9 == NULL ) {
-        printf("Error : fopen spec_org_sum\n");
+    fp3_org = fopen("Spectrum_PhasSum_org.dat","w");
+    if( fp3_org == NULL ){
+        printf("ファイルオープンエラー\n");
         return -1;
     }
-    if ( fp_spec_cor_sum_g0 == NULL || fp_spec_cor_sum_g1 == NULL || fp_spec_cor_sum_g2 == NULL || fp_spec_cor_sum_g3 == NULL || fp_spec_cor_sum_g4 == NULL || fp_spec_cor_sum_g5 == NULL || fp_spec_cor_sum_g6 == NULL || fp_spec_cor_sum_g7 == NULL || fp_spec_cor_sum_g8 == NULL || fp_spec_cor_sum_g9 == NULL ) {
-        printf("Error : fopen spec_cor_sum\n");
+    fp3_cor = fopen("Spectrum_PhasSum_cor.dat","w");
+    if( fp3_cor == NULL ){
+        printf("ファイルオープンエラー\n");
         return -1;
     }
     
     // スペクトルを出力, ノイズ加算なし
-    for ( i=-1000 ; i<4096 ; i++ ){
-        fprintf(fp_spec_org_sum_g0, "%5d %6d\n", i, sp_cnt_phassum_org[0][i]);
-        fprintf(fp_spec_org_sum_g1, "%5d %6d\n", i, sp_cnt_phassum_org[1][i]);
-        fprintf(fp_spec_org_sum_g2, "%5d %6d\n", i, sp_cnt_phassum_org[2][i]);
-        fprintf(fp_spec_org_sum_g3, "%5d %6d\n", i, sp_cnt_phassum_org[3][i]);
-        fprintf(fp_spec_org_sum_g4, "%5d %6d\n", i, sp_cnt_phassum_org[4][i]);
-        fprintf(fp_spec_org_sum_g5, "%5d %6d\n", i, sp_cnt_phassum_org[5][i]);
-        fprintf(fp_spec_org_sum_g6, "%5d %6d\n", i, sp_cnt_phassum_org[6][i]);
-        fprintf(fp_spec_org_sum_g7, "%5d %6d\n", i, sp_cnt_phassum_org[7][i]);
-        fprintf(fp_spec_org_sum_g8, "%5d %6d\n", i, sp_cnt_phassum_org[8][i]);
-        fprintf(fp_spec_org_sum_g9, "%5d %6d\n", i, sp_cnt_phassum_org[9][i]);
-    }
+    fprintf(fp3_org, "! PHAS_SUM, COUNTS\n");
+    fprintf(fp3_org, "SKIP SINGLE\n");
 
-    // スペクトルを出力, ノイズ加算あり
-    for ( i=-1000 ; i<4096 ; i++ ){
-        fprintf(fp_spec_cor_sum_g0, "%5d %6d\n", i, sp_cnt_phassum_cor[0][i]);
-        fprintf(fp_spec_cor_sum_g1, "%5d %6d\n", i, sp_cnt_phassum_cor[1][i]);
-        fprintf(fp_spec_cor_sum_g2, "%5d %6d\n", i, sp_cnt_phassum_cor[2][i]);
-        fprintf(fp_spec_cor_sum_g3, "%5d %6d\n", i, sp_cnt_phassum_cor[3][i]);
-        fprintf(fp_spec_cor_sum_g4, "%5d %6d\n", i, sp_cnt_phassum_cor[4][i]);
-        fprintf(fp_spec_cor_sum_g5, "%5d %6d\n", i, sp_cnt_phassum_cor[5][i]);
-        fprintf(fp_spec_cor_sum_g6, "%5d %6d\n", i, sp_cnt_phassum_cor[6][i]);
-        fprintf(fp_spec_cor_sum_g7, "%5d %6d\n", i, sp_cnt_phassum_cor[7][i]);
-        fprintf(fp_spec_cor_sum_g8, "%5d %6d\n", i, sp_cnt_phassum_cor[8][i]);
-        fprintf(fp_spec_cor_sum_g9, "%5d %6d\n", i, sp_cnt_phassum_cor[9][i]);
+    for (i=0 ; i<10 ; i++){
+        for ( j=-1000 ; j<4096 ; j++ ){
+            fprintf(fp3_org, "%5d %6d\n", j, sp_cnt_phassum_org[i][j]);
+        }
+        fprintf(fp3_org, "NO\n");
     }
+    // スペクトルを出力, ノイズ加算あり
+    fprintf(fp3_cor, "! PHAS_SUM, COUNTS\n");
+    fprintf(fp3_cor, "SKIP SINGLE\n");
     
-    /* fclose */
-    fclose(fp_spec_org_g0);
-    fclose(fp_spec_org_g1);
-    fclose(fp_spec_org_g2);
-    fclose(fp_spec_org_g3);
-    fclose(fp_spec_org_g4);
-    fclose(fp_spec_org_g5);
-    fclose(fp_spec_org_g6);
-    fclose(fp_spec_org_g7);
-    fclose(fp_spec_cor_g0);
-    fclose(fp_spec_cor_g1);
-    fclose(fp_spec_cor_g2);
-    fclose(fp_spec_cor_g3);
-    fclose(fp_spec_cor_g4);
-    fclose(fp_spec_cor_g5);
-    fclose(fp_spec_cor_g6);
-    fclose(fp_spec_cor_g7);
-    fclose(fp_spec_org_sum_g0);
-    fclose(fp_spec_org_sum_g1);
-    fclose(fp_spec_org_sum_g2);
-    fclose(fp_spec_org_sum_g3);
-    fclose(fp_spec_org_sum_g4);
-    fclose(fp_spec_org_sum_g5);
-    fclose(fp_spec_org_sum_g6);
-    fclose(fp_spec_org_sum_g7);
-    fclose(fp_spec_org_sum_g8);
-    fclose(fp_spec_org_sum_g9);
-    fclose(fp_spec_cor_sum_g0);
-    fclose(fp_spec_cor_sum_g1);
-    fclose(fp_spec_cor_sum_g2);
-    fclose(fp_spec_cor_sum_g3);
-    fclose(fp_spec_cor_sum_g4);
-    fclose(fp_spec_cor_sum_g5);
-    fclose(fp_spec_cor_sum_g6);
-    fclose(fp_spec_cor_sum_g7);
-    fclose(fp_spec_cor_sum_g8);
-    fclose(fp_spec_cor_sum_g9);
+    for (i=0 ; i<10 ; i++){
+        for ( j=-1000 ; j<4096 ; j++ ){
+            fprintf(fp3_cor, "%5d %6d\n", j, sp_cnt_phassum_cor[i][j]);
+        }
+        fprintf(fp3_cor, "NO\n");
+    }
+    fclose(fp3_org);  // ファイル閉じる。
+    fclose(fp3_cor);  // ファイル閉じる。
     
     /* メモリ解放 */
     // ポインタ

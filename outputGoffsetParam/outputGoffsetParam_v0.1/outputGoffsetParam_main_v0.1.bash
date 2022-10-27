@@ -12,7 +12,7 @@ if [ $# != 0 ] ; then
 fi
 
 # ref
-noise_ref=( 3.0 3.5 4.0 4.5 )
+noise_ref=( 6.4 6.8 7.2 7.6 8.0 8.4 )
 grade_ref=( 0 2 3 6 )
 
 # coefficient dir

@@ -1,4 +1,4 @@
-#!/bin/bash -f
+/#!/bin/bash -f
 
 # 2022.05.02
 

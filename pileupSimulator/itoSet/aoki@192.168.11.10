@@ -1,0 +1,38 @@
+
+
+### GitHub -> astro5 ###
+Host github
+	HostName github.com
+	IdentityFile /Users/aoki/.ssh/id_rsa_for_git_1
+	User git
+
+### avion -> astro5 ###
+Host avion
+	HostName 192.168.11.12
+	IdentityFile /Users/aoki/.ssh/id_rsa_for_avion_from_astro5
+	User aoki
+
+### mac mini -> astro5 ###
+Host mini
+	HostName 192.168.11.10
+	IdentityFile /Users/aoki/.ssh/id_rsa_for_mini_from_astro5
+	User nobukawa
+
+
+Host rfxarm2
+     Hostname rfxarm2.reformat.isas.jaxa.jp
+     User xtend
+     ProxyCommand ssh coriander -W%h:%p
+     IdentityFile ~/.ssh/id_kindai_yumaAoki
+
+Host coriander
+     Hostname coriander.pub.isas.jaxa.jp
+     User yuma
+     IdentityFile ~/.ssh/id_kindai_yumaAoki
+
+Host rfxarm
+     Hostname rfxarm.reformat.isas.jaxa.jp
+     User xtend
+     ProxyCommand ssh coriander -W%h:%p
+     IdentityFile ~/.ssh/id_kindai_yumaAoki
+

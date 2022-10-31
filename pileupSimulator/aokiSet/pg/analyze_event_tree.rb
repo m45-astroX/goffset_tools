@@ -75,7 +75,7 @@ end
 ### Main
 time_start = 0.0
 input_file = "events.root"
-exposure = 21890.0#2636.7#371.2#1889.2#2189.2#1813.6#2189.0#21890.0
+exposure = 218900.0#2636.7#371.2#1889.2#2189.2#1813.6#2189.0#21890.0
 frame_exposure = 4.0
 filename_base = input_file.gsub(".root","")
 

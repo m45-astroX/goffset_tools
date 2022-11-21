@@ -50,7 +50,7 @@ end
     
     
 def run_simulation(num, random, output)
-    energy_array, photons_array = get_energy_photons_array("./osaka_cal_ccd2cd/55fe/55fe_mod123.txt")
+    energy_array, photons_array = get_energy_photons_array("./osaka_cal_ccd2cd/sio2/sio2_yreg.txt")
     sim = ComptonSoft::Simulation.new
     sim.output = output
     sim.random_seed = random
@@ -71,7 +71,7 @@ def run_simulation(num, random, output)
         pixel_size: 0.048,#mm
         num_pixel_x: 320,
         num_pixel_y: 640,
-        exposure: 2189.0,
+        exposure: 218900.0,
         use_flux: false,
     }
     sim.use_tree_format("eventtree", notice_undetected: true)

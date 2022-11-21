@@ -72,7 +72,7 @@ def run_simulation(num, random, output)
         pixel_size: 0.048,#mm
         num_pixel_x: 320,
         num_pixel_y: 640,
-        exposure: 218900.0,
+        exposure: 21890.0,
         use_flux: false,
     }
     sim.use_tree_format("eventtree", notice_undetected: true)

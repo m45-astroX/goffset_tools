@@ -1,0 +1,6 @@
+#ifndef CONST_CONFIG_H
+#define CONST_CONFIG_H
+
+#define KB_OVER_Q_ELECTRON 0.00008617333
+
+#endif

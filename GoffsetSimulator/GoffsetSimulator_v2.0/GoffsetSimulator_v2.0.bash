@@ -3,6 +3,7 @@
 # GoffsetSimulator
 
 # 2024.08.23 v1.0 by Yuma Aoki (Kindai Univ.)
+# 2024.12.12 v2.0 by Yuma Aoki (Kindai Univ.)
 
 
 sigma='0.11'
@@ -14,7 +15,7 @@ VERSION='1.0'
 VERSION_MAKEDATA='1.0'
 VERSION_GAUSSFIT='1.0'
 VERSION_CALCGOFFSETVAL='1.0'
-VERSION_CALCGOFFSETPAR='1.0'
+VERSION_CALCGOFFSETPAR='2.0'
 
 SCRIPT_MAKEDATA="$(cd $(dirname $0) && pwd)/mkSpecData4GoffsetPG_v${VERSION_MAKEDATA}/mkSpecData4GoffsetPG_v${VERSION_MAKEDATA}.bash"
 SCRIPT_GAUSSFIT="$(cd $(dirname $0) && pwd)/mkFitData4GoffsetPG_v${VERSION_GAUSSFIT}/mkFitData4GoffsetPG_v${VERSION_GAUSSFIT}.bash"

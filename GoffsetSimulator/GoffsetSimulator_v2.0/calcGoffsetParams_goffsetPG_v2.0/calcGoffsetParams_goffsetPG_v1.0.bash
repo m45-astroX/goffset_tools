@@ -45,7 +45,7 @@ function gnuplotfit () {
     # goffset_evt = goffset_ah0[g_indx]
     f(x) = a * x **2 + b * x + c
     g(x) = b * x + c
-    h(x) = b + c
+    h(x) = c
     s(x) = x<306.5 ? f(x) : x<2000 ? g(x) : h(x)
     
     ### Fit

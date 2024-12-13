@@ -3,11 +3,13 @@
 # calcGoffsetParams_goffsetPG
 
 # 2024.08.23 v1.0 by Yuma Aoki (Kindai Univ.)
-# 2024.12.12 v2.0 by Yuma Aoki (Kindai Univ.)
-#   - Gnuplotのモデル関数は2022年青木修論(近大)の式(6.1)–(6.3)
-#   - モデル関数のパラメータはxtdpiに対応するように出力する
+# 2024.12.12 v3.0 by Yuma Aoki (Kindai Univ.)
+#   - Gnuplotのモデル関数
+#       - 2022年青木修論(近畿大学)の式6.1–6.3を参照
+#       - モデル関数の境界条件を定めている
+#   - モデル関数の係数はxtdpiに対応するように出力する
 
-VERSION='2.0'
+VERSION='3.0'
 
 if [ $# != 2 ] ; then
     echo "Usage : bash calcGoffsetParams_goffsetPG_v${VERSION}.bash"

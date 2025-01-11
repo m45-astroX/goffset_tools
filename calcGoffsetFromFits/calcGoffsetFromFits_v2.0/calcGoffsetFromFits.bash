@@ -32,31 +32,35 @@
 # 2024.12.16 v1.7 by Yuma Aoki (Kindai Univ.)
 #   - powgaussFitのバージョン変更 (v1.0)
 #   - consgaussFitのバージョン変更 (v1.1)
+#   - 統計量を指定する仕様に変更
 
 VERSION='2.0'
 MAKE_WARNING_SKIP='0'
 
-if [ $# != 4 ] && [ $# != 6 ] ; then
+if [ $# != 5 ] && [ $# != 7 ] ; then
     echo "Usage : bash calcGoffsetFromFits.bash"
     echo "    \$1 evtfile : Xtend cleaned event file processed by xtdpipeline with usegoffset option 'no' and debugcol option 'yes'"
     echo "    \$2 MODEL (0:CONS+GAUS / 1:POWR+GAUS)"
-    echo "    \$3,\$4 PHA_MIN and PHA_MAX : The range of pha spectrum to be fitted"
-    echo "    \$5,\$6 PHASSUM_MIN and PHASSUM_MAX : The range of phassum spectrum to be fitted"
+    echo "    \$3 Statistic (Chi:Chi-Square / Ml:Maximum-likelihood)"
+    echo "    \$4,\$5 PHA_MIN and PHA_MAX : The range of pha spectrum to be fitted"
+    echo "    \$6,\$7 PHASSUM_MIN and PHASSUM_MAX : The range of phassum spectrum to be fitted"
     exit
-elif [ $# = 4 ] ; then
+elif [ $# = 5 ] ; then
     evtfile=$1
     model=$2
-    PHA_MIN=$3
-    PHA_MAX=$4
+    statistic=$3
+    PHA_MIN=$4
+    PHA_MAX=$5
     PHASSUM_MIN=$PHA_MIN
     PHASSUM_MAX=$PHA_MAX
-elif [ $# = 6 ] ; then
+elif [ $# = 7 ] ; then
     evtfile=$1
     model=$2
-    PHA_MIN=$3
-    PHA_MAX=$4
-    PHASSUM_MIN=$5
-    PHASSUM_MAX=$6
+    statistic=$3
+    PHA_MIN=$4
+    PHA_MAX=$5
+    PHASSUM_MIN=$6
+    PHASSUM_MAX=$7
 fi
 
 ### Variables
@@ -112,6 +116,12 @@ fi
 if [ "$model" != 0 ] && [ "$model" != 1 ] ; then
     echo "*** Error"
     echo "model(\$2) must be 0 or 1!"
+    echo "abort"
+    exit
+fi
+if [ "$(echo $statistic | tr [A-Z] [a-z])" != 'chi' ] && [ "$(echo $statistic | tr [A-Z] [a-z])" != 'ml' ] ; then
+    echo "*** Error"
+    echo "statistic (\$3) must be Chi or Ml."
     echo "abort"
     exit
 fi
@@ -178,10 +188,11 @@ printf "calcGoffsetFromFits\n\n" >> $logfile
 printf "BEGIN PARAMS\n" >> $logfile
 printf "\$1 evtfile     : $evtfile\n" >> $logfile
 printf "\$2 model       : $model\n" >> $logfile
-printf "\$3 PHA_MIN     : $PHA_MIN\n" >> $logfile
-printf "\$4 PHA_MAX     : $PHA_MAX\n" >> $logfile
-printf "\$5 PHASSUM_MIN : $PHASSUM_MIN\n" >> $logfile
-printf "\$6 PHASSUM_MAX : $PHASSUM_MAX\n" >> $logfile
+printf "\$3 statistic   : $statistic\n" >> $logfile
+printf "\$4 PHA_MIN     : $PHA_MIN\n" >> $logfile
+printf "\$5 PHA_MAX     : $PHA_MAX\n" >> $logfile
+printf "\$6 PHASSUM_MIN : $PHASSUM_MIN\n" >> $logfile
+printf "\$7 PHASSUM_MAX : $PHASSUM_MAX\n" >> $logfile
 printf "END PARAMS\n\n" >> $logfile
 printf "BEGIN INFO\n" >> $logfile
 printf "CCD_ID_list  = $(echo ${CCD_ID_list[@]})\n" >> $logfile
@@ -292,11 +303,11 @@ for SEGMENT in ${SEGMENT_list[@]} ; do
     color=$(color_select '-1')
     if [ "$model" = 0 ] ; then
         outfile_figure_ps_PHASSUM="fitResult_CONSGAUS_PHASSUM_GOODGRADE_c${CCD_ID}s${SEGMENT}.ps"
-        $CONSGAUSS_FIT $outfile_spec_PHASSUM $PHASSUM_MIN $PHASSUM_MAX $color $outfile_figure_ps_PHASSUM 1> $tmp_fitresult 2> $f_error_tmp
+        $CONSGAUSS_FIT $outfile_spec_PHASSUM $PHASSUM_MIN $PHASSUM_MAX $statistic $color $outfile_figure_ps_PHASSUM 1> $tmp_fitresult 2> $f_error_tmp
         check_errorfile $CCD_ID $SEGMENT '02346' 'CONSGAUSS_FIT'
     elif [ "$model" = 1 ] ; then
         outfile_figure_ps_PHASSUM="fitResult_POWGAUS_PHASSUM_GOODGRADE_c${CCD_ID}s${SEGMENT}.ps"
-        $POWGAUSS_FIT $outfile_spec_PHASSUM $PHASSUM_MIN $PHASSUM_MAX $color $outfile_figure_ps_PHASSUM 1> $tmp_fitresult 2> $f_error_tmp
+        $POWGAUSS_FIT $outfile_spec_PHASSUM $PHASSUM_MIN $PHASSUM_MAX $statistic $color $outfile_figure_ps_PHASSUM 1> $tmp_fitresult 2> $f_error_tmp
         check_errorfile $CCD_ID $SEGMENT '02346' 'POWGAUSS_FIT'
     fi
 
@@ -333,11 +344,11 @@ for SEGMENT in ${SEGMENT_list[@]} ; do
         color=$(color_select $GRADE)
         if [ "$model" = 0 ] ; then
             outfile_figure_ps_PHA="fitResult_CONSGAUS_PHA_c${CCD_ID}s${SEGMENT}_grade${GRADE}.ps"
-            $CONSGAUSS_FIT $outfile_spec_PHA $PHA_MIN $PHA_MAX $color $outfile_figure_ps_PHA 1> $tmp_fitresult 2> $f_error_tmp
+            $CONSGAUSS_FIT $outfile_spec_PHA $PHA_MIN $PHA_MAX $statistic $color $outfile_figure_ps_PHA 1> $tmp_fitresult 2> $f_error_tmp
             check_errorfile $CCD_ID $SEGMENT $GRADE 'CONSGAUSS_FIT'
         elif [ "$model" = 1 ] ; then
             outfile_figure_ps_PHA="fitResult_POWGAUS_PHA_c${CCD_ID}s${SEGMENT}_grade${GRADE}.ps"
-            $POWGAUSS_FIT $outfile_spec_PHA $PHA_MIN $PHA_MAX $color $outfile_figure_ps_PHA 1> $tmp_fitresult 2> $f_error_tmp
+            $POWGAUSS_FIT $outfile_spec_PHA $PHA_MIN $PHA_MAX $statistic $color $outfile_figure_ps_PHA 1> $tmp_fitresult 2> $f_error_tmp
             check_errorfile $CCD_ID $SEGMENT $GRADE 'POWGAUSS_FIT'
         fi
 

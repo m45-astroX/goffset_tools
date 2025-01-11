@@ -86,11 +86,11 @@ if [ -e $outfile ] ; then
 fi
 
 ### Make fit command file
-if [ "$(echo $fit_statistic | tr [A-Z] [a-z])" = 'ml' ] ; then
+if [ "$(echo $fit_statistic | tr "[A-Z]" "[a-z]")" = 'ml' ] ; then
     for i in $(seq 1 100) ; do
         echo "Fit Stat Ml I 100" >> $fitcommand_tmp
     done
-elif [ "$(echo $fit_statistic | tr [A-Z] [a-z])" = 'chi' ] ; then
+elif [ "$(echo $fit_statistic | tr "[A-Z]" "[a-z]")" = 'chi' ] ; then
     for i in $(seq 1 100) ; do
         echo "Fit Stat Chi I 100" >> $fitcommand_tmp
     done

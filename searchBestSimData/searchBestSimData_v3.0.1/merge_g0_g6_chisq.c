@@ -1,6 +1,8 @@
 /*
 
     merge_g0_g6_chisq.c
+        - G0, G6 のカイ二乗値ファイルをマージするスクリプト
+        - 入力ファイルはcalcChiSq4GoffsetPGの生成物
 
     2025.01.15 v1.0 by Yuma Aoki (Kindai Univ.)
 
@@ -12,24 +14,25 @@
 
 #define OFFSET_MIN  0.0
 #define OFFSET_STEP 0.1
-#define OFFSET_MAX  10.1
+#define OFFSET_MAX  10.0
 
 int read_linenum ( char infile_name[FILENAME_MAX], int file_type );
 
 int main ( int argc, char *argv[] ) {
 
     int line_num = 0;
-    char buf[1024];
     float offset = 0.0;
+    char buf[1024];
 
+    // 読み込み用変数
     float g0_noise = 0.0;
     float g0_chisq = 0.0;
     float g6_noise = 0.0;
     float g6_chisq = 0.0;
 
-    char filename_g0[FILENAME_MAX];
-    char filename_g6[FILENAME_MAX];
-    char filename_merge[FILENAME_MAX];
+    char filename_g0[FILENAME_MAX];     // Grade0のカイ二乗値リスト
+    char filename_g6[FILENAME_MAX];     // Grade6のカイ二乗値リスト
+    char filename_merge[FILENAME_MAX];  // マージ後のファイル
     FILE *fp_g0 = NULL;
     FILE *fp_g6 = NULL;
     FILE *fp_merge = NULL;
@@ -38,7 +41,7 @@ int main ( int argc, char *argv[] ) {
     snprintf(filename_g0, sizeof(filename_g0), "chisq_g0_offset_%04.1f.dat", OFFSET_MIN);
     line_num = read_linenum ( filename_g0, 1 );
 
-    while ( offset <= OFFSET_MAX ) {
+    while ( offset <= ( OFFSET_MAX + OFFSET_STEP ) ) {
 
         // Set file names
         snprintf(filename_g0, sizeof(filename_g0), "chisq_g0_offset_%04.1f.dat", offset);
@@ -85,7 +88,7 @@ int main ( int argc, char *argv[] ) {
                     break;
                 }
                 else {
-                    j++;
+                    j ++;
                     continue;
                 }
 
@@ -102,16 +105,18 @@ int main ( int argc, char *argv[] ) {
                     break;
                 }
                 else {
-                    j++;
+                    j ++;
                     continue;
                 }
 
             }
+
             // Merge
             if ( g0_noise == g6_noise ) {
                 fprintf(fp_merge, "%f %f\n", g0_noise, g0_chisq+g6_chisq);
             }
             else {
+                // If the noise matchs 
                 fprintf(stderr, "*** Error\n");
                 fprintf(stderr, "g0_noise != g6_noise\n");
                 fprintf(stderr, "line_num = %d\n", i);

@@ -2,7 +2,6 @@
 
     Goffset_makeData
 
-    v0 : Masayoshi Nobukawa (Nara Univ. of education)
     v1.0 : Yuma Aoki (Kindai Univ.)
 
 */

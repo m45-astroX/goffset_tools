@@ -31,16 +31,23 @@ CCD_ID_list=( 0 1 2 3 )
 SEGMENT_list=( 0 1 )
 GRADE_list=( 0 2 3 4 6 )
 
-### Files
+### Files and directories
 tmp_fitresult='tmpfile4calcGoffsetFromFits_1.tmp'
+d_spec='obs_spec'
+d_goffsetresults='obs_GoffsetResults'
 
 ### Scripts
-MK_SPEC_PHA='/Users/aoki/git/sxi_tools/mkSpec_PHA/mkSpec_PHA_v1.0/mkSpec_PHA'
-MK_SPEC_PHASSUMGOOD='/Users/aoki/git/sxi_tools/mkSpec_PHASSUM_GOODGRADE/mkSpec_PHASSUM_GOODGRADE_v1.0/mkSpec_PHASSUM_GOODGRADE'
-SPEC_PHCUT='/Users/aoki/git/sxi_tools/spec_phcut/spec_phcut_v1.0/spec_phcut_v1.0.bash'
-GAUSS_FIT='/Users/aoki/git/sxi_tools/gaussFit/gaussFit_v2.1.3/gaussFit_v2.1.3.bash'
+VERSION_MK_SPEC_PHA='1.0'
+VERSION_MK_SPEC_PHASSUMGOOD='1.0'
+VERSION_SPEC_PHCUT='1.0'
+VERSION_GAUSS_FIT='2.1.4'
+MK_SPEC_PHA="$(cd $(dirname $0) && pwd)/mkSpec_PHA_v${VERSION_MK_SPEC_PHA}/mkSpec_PHA"
+MK_SPEC_PHASSUMGOOD="$(cd $(dirname $0) && pwd)/mkSpec_PHASSUM_GOODGRADE_v${VERSION_MK_SPEC_PHASSUMGOOD}/mkSpec_PHASSUM_GOODGRADE"
+SPEC_PHCUT="$(cd $(dirname $0) && pwd)/spec_phcut_v${VERSION_SPEC_PHCUT}/spec_phcut_v${VERSION_SPEC_PHCUT}.bash"
+GAUSS_FIT="$(cd $(dirname $0) && pwd)/gaussFit_v${VERSION_GAUSS_FIT}/gaussFit_v${VERSION_GAUSS_FIT}.bash"
 
-### Check files
+
+### Check files and directories
 if [ ! -e $evtfile ] ; then
     echo "$evtfile does not exist!"
     exit
@@ -53,6 +60,13 @@ if [ ! -e $MK_SPEC_PHASSUMGOOD ] ; then
     echo "$(basename $MK_SPEC_PHASSUMGOOD) does not exist!"
     exit
 fi
+if [ ! -e $d_spec ] ; then
+    mkdir $d_spec
+fi
+if [ ! -e $d_goffsetresults ] ; then
+    mkdir $d_goffsetresults
+fi
+
 
 ### Make evtfiles and spectra
 for CCD_ID in ${CCD_ID_list[@]} ; do
@@ -103,18 +117,24 @@ for SEGMENT in ${SEGMENT_list[@]} ; do
         ### Print results
         file_result="goffsetResult_c${CCD_ID}s${SEGMENT}_g${GRADE}_${PHA_MIN}-${PHA_MAX}${UNIT}.dat"
         echo "${GC_PHASSUM_GOODGRADE} ${GC_PHASSUM_GOODGRADE_ERR} ${GC_PHA} ${GC_PHA_ERR} ${GOFFSET} ${GOFFSET_ERR}" > $file_result
-        
-        ### Zip the evtfile
-        gzip $outfile_evt_csg
 
+        ### Move files
+        rm -f $outfile_evt_csg
+        mv $outfile_spec_PHA $d_spec
+        mv $file_spec_PHA_PHCUT $d_spec
+        mv $file_result $d_goffsetresults
+        
     done
 
-    ### Zip the evtfile
-    gzip $outfile_evt_cs
+    ### Move and delete files
+    mv $outfile_spec_PHASSUM $d_spec
+    mv $file_spec_PHASSUM_GOODGRADE_PHCUT $d_spec
+    rm -f $outfile_evt_cs
 
 done
 done
 
+### delete files
 rm -f $tmp_fitresult
 
 exit

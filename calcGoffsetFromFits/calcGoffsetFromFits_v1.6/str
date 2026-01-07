@@ -1,0 +1,46 @@
+#!/bin/bash
+
+str_in="astro1234567890tenmon0987654321"
+left_offset=4
+right_offset=2
+left_offset_init=2
+
+function print_with_offset () {
+
+    str_in_=$1
+    str_length=${#str_in_}
+    left_offset=$2
+    right_offset=$3
+    left_offset_init=$4
+    count=$left_offset_init
+    colnum_terminal=$(tput cols)
+    
+    i=0
+    while [ "$i" -lt "$left_offset_init" ] ; do
+        printf " "
+        let i++
+    done
+    
+    for i in $(seq 1 $str_length) ; do    
+        str=${str_in_[$i]}
+        echo "$i $str"
+        if [ "$count" -ge "$(echo $colnum_terminal - $right_offset - $left_offset_init | bc)" ] ; then
+            printf "\n"
+            j=0
+            while [ "$j" -le "$left_offset" ] ; do
+                printf " "
+                let j++
+            done
+            left_offset_init=0
+            count=1
+        fi
+
+        printf "$str"
+
+        let count++
+
+    done
+
+}
+
+print_with_offset "$str_in" $left_offset $right_offset $left_offset_init

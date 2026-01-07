@@ -2,7 +2,7 @@
  
  calcElectronCloudDiffusion
  
-    - 2023.06.12 Yuma Aoki (v0.1)
+    - 2023.06.12 by Yuma Aoki (v0.1)
  
  This program calculates the diffusion of electron clouds.
  
